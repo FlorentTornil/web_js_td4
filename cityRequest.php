@@ -73,4 +73,9 @@ class Model {
 // on initialise la connexion $pdo
 Model::init_pdo();
 
-// le reste est à compléter
+$name = $_GET["city"];
+$tabVilles = Model::selectByName($name);
+sleep(1);
+echo json_encode($tabVilles);
+
+?>

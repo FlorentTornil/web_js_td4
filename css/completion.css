@@ -1,7 +1,7 @@
 #myac{
     width: inherit;
     background-color: white;
-    border: 0px solid black;
+    border: 1px solid black;
     line-height:1.5;
     position: absolute;    
 }
