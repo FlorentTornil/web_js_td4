@@ -73,8 +73,7 @@ class Model {
 // on initialise la connexion $pdo
 Model::init_pdo();
 
-$name = $_GET["city"];
-$tabVilles = Model::selectByName($name);
+$tabVilles = Model::selectByName($_GET["city"]);
 sleep(1);
 echo json_encode($tabVilles);
 
