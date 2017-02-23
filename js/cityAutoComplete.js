@@ -4,7 +4,7 @@ var selectedP;
 setup();
 
 function afficheVilles(tabVilles) {
-    viderVilles(false);
+    viderVilles(tabVilles.length === 0);
     var div = document.getElementById('myac');
     for(var i=0; i<tabVilles.length; i++) {
         div.innerHTML += "<p id=pVille" + i + ">" + tabVilles[i] + "</p>";
@@ -40,7 +40,7 @@ function cityResponse(httpRequest) {
     var tabRep = JSON.parse(httpRequest.responseText);
     var tabVilles = new Array();
     for(var i=0; i<tabRep.length; i++) {
-        tabVilles[i] = tabRep[i].name;
+        tabVilles.push(tabRep[i].name);
     }
     afficheVilles(tabVilles);
 }
