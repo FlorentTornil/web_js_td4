@@ -1,10 +1,13 @@
+var timeout = setTimeout(function() {}, 0);
+var selectedP;
+
 setup();
 
 function afficheVilles(tabVilles) {
     viderVilles(false);
     var div = document.getElementById('myac');
     for(var i=0; i<tabVilles.length; i++) {
-        div.innerHTML += "<p>" + tabVilles[i] + "</p>";
+        div.innerHTML += "<p id=pVille" + i + ">" + tabVilles[i] + "</p>";
     }
 }
 
@@ -29,7 +32,7 @@ function myajax(url, callBack, startLoadingAction, endLoadingAction) {
 }
 
 function cityRequest(ville) {
-    var url = "http://localhost:8080/web_js_td4-master/cityRequest.php?city=" + ville;
+    var url = "http://infolimon.iutmontp.univ-montp2.fr/~tornilf/web_js_td4-master/cityRequest.php?city=" + ville;
     myajax(url, cityResponse, afficherGif, cacherGif);
 }
 
@@ -48,18 +51,19 @@ function setup() {
     }
     else {
         var input = document.getElementById('inpcity');
-        input.addEventListener("input", traiterInput);
+        input.addEventListener("input", debounce);
         var div = document.getElementById('myac');
         div.addEventListener("click",autocomplete);
         var select = document.getElementById("continent");
         select.addEventListener("change",setupPays);
+        document.addEventListener("keydown",traiterToucheClavier);
         viderVilles(true);
         setupContinent();
         setupPays();
     }
 }
 
-function traiterInput(event) {
+function traiterInput() {
     var input = document.getElementById('inpcity');
     if(input.value.length >= 2) {
         cityRequest(input.value);
@@ -67,7 +71,6 @@ function traiterInput(event) {
     else {
         viderVilles(true);
     }
-    
 }
 
 function autocomplete(event) {
@@ -90,6 +93,7 @@ function cacherGif() {
 function setupContinent() {
     var tabContinents = Object.keys(countries);
     var select = document.getElementById("continent");
+    select.innerHTML = '<option disabled="" selected="">Choisissez un continent</option>';
     for(var i = 0; i < tabContinents.length; i++) {
         select.innerHTML += "<option>" + tabContinents[i] + "</option>";
     }
@@ -97,11 +101,57 @@ function setupContinent() {
 
 function setupPays() {
     var selectContinent = document.getElementById("continent");
-    var tabPays = Object.values(countries)[selectContinent.selectedIndex];
+    var tabPays = countries[selectContinent.value];
     var selectPays = document.getElementById("country");
-    selectPays.innerHTML = "";
-    for(var i = 0; i < tabPays.length; i++) {
-        selectPays.innerHTML += "<option>" + tabPays[i] + "</option>";
-    }
+		selectPays.innerHTML = '<option disabled="" selected="">Choisissez un pays</option>';
+    if(!(tabPays === undefined)) {
+		for(var i = 0; i < tabPays.length; i++) {
+			selectPays.innerHTML += "<option>" + tabPays[i] + "</option>";
+		}
+	}
 }
 
+function debounce() {
+	clearTimeout(timeout);
+	timeout = setTimeout(traiterInput, 1000);
+}
+
+function traiterToucheClavier(event) {
+	var codeTouche = event.keyCode;
+	var div = document.getElementById('myac');
+	if(div.innerHTML.length>0) {
+		if(codeTouche === 38) {
+			if(selectedP === undefined || selectedP === 0) {
+				selectedP = 1;
+			}
+			var pAncien = document.getElementById('pVille' + selectedP);
+			pAncien.style.backgroundColor = "";
+			selectedP --;
+			var pNouveau = document.getElementById('pVille' + selectedP);
+			pNouveau.style.backgroundColor = "aliceblue";
+		}
+		if(codeTouche === 40) {
+			if(selectedP === undefined) {
+				selectedP = -1;
+			}
+			if(selectedP === 4) {
+				selectedP --;
+			}
+			if(selectedP>=0) {
+				var pAncien = document.getElementById('pVille' + selectedP);
+				pAncien.style.backgroundColor = "";
+			}
+			selectedP ++;
+			var pNouveau = document.getElementById('pVille' + selectedP);
+			pNouveau.style.backgroundColor = "aliceblue";	
+		}
+		if(codeTouche === 13) {
+			if(!(selectedP === undefined)) {
+				var p = document.getElementById('pVille' + selectedP);
+				var input = document.getElementById("inpcity");
+				input.value = p.innerHTML;
+				viderVilles(true);
+			}
+		}
+	}
+}
